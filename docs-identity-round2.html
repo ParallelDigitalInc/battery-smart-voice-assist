@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voice Assistant Identity — Round 2 (reference-led)</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Geist:wght@400..700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#4338CA;--primary-container:#E0E7FF;--on-primary-container:#3730A3;--primary-subtle:#EEF2FF;
+  --secondary:#059669;--success:#047857;--mint-container:#D1FAE5;--violet:#7C3AED;
+  --error:#D32F2F;--surface:#FFFFFF;--surface-2:#FAFAFA;--surface-3:#F5F5F5;--surface-dim:#E9E9E9;
+  --on-surface:#1D1D1D;--on-surface-variant:#646464;--outline-variant:#DBDBDB;
+  --deep-orange-on-container:#6D1E06;--deep-orange-container:#F8D9CC;
+  --font:'Google Sans Flex','Noto Sans Devanagari',system-ui,sans-serif;--num:'Geist',var(--font);--hi:'Noto Sans Devanagari',var(--font);
+  --shadow-m:0 2px 8px rgba(0,0,0,.08);--shadow-xl:0 6px 24px rgba(0,0,0,.12);
+  --ring:conic-gradient(from 210deg,#4338CA 0%,#7C3AED 30%,#059669 62%,#4338CA 100%);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--surface-2);color:var(--on-surface);font:400 16px/24px var(--font);-webkit-font-smoothing:antialiased}
+svg{display:block}
+a{color:var(--on-primary-container)}
+.wrap{max-width:1040px;margin:0 auto;padding:48px 24px 96px}
+h1{font:600 36px/42px var(--font);letter-spacing:-.5px;margin:0 0 8px}
+.lede{color:var(--on-surface-variant);font-size:18px;line-height:28px;max-width:760px;margin:0 0 40px}
+h2{font:600 24px/30px var(--font);letter-spacing:-.15px;margin:56px 0 8px}
+h3{font:600 20px/26px var(--font);margin:0}
+.muted{color:var(--on-surface-variant)}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font:500 12px/18px var(--font);background:var(--surface-3);color:var(--on-surface-variant);margin-left:8px;vertical-align:middle}
+.tag.pick{background:var(--mint-container);color:var(--success)}
+
+/* ── Reference routes ─────────────────────────────────────────────── */
+.routes{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px}
+.route{background:#fff;border:1px solid var(--outline-variant);border-radius:20px;padding:22px 24px;display:grid;grid-template-columns:120px 1fr;gap:20px}
+.route .sk{height:120px;border-radius:14px;background:var(--surface-3);display:grid;place-items:center;position:relative;overflow:hidden}
+.route h4{margin:0;font:600 18px/24px var(--font)}
+.route p{margin:6px 0 0;color:var(--on-surface-variant);font-size:14px;line-height:21px}
+.route .apps{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.route .apps a{font:500 12px/18px var(--font);padding:2px 9px;border-radius:999px;background:var(--primary-subtle);color:var(--on-primary-container);text-decoration:none}
+.lesson{margin-top:10px;font-size:14px;line-height:21px;color:var(--on-surface)}
+.lesson b{color:var(--on-primary-container)}
+/* schematic recreations */
+.sk-ring{width:44px;height:44px;border-radius:50%;background:conic-gradient(from 0deg,#2E7CF6,#A855F7,#F472B6,#2E7CF6);position:relative}
+.sk-ring::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--surface-3)}
+.sk-bar{position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(90deg,#0EA5E9,#22D3EE,#6366F1);filter:blur(1px)}
+.sk-cloud{width:56px;height:56px;border-radius:50%;background:radial-gradient(60% 60% at 40% 35%,#fff 0,#BFDBFE 45%,#3B82F6 100%)}
+.sk-tile{width:96px;height:40px;border-radius:6px;background:#282828;display:flex;align-items:center;gap:8px;padding:0 8px;color:#fff;font:600 12px/16px var(--font)}
+.sk-tile i{width:24px;height:24px;border-radius:50%;background:#1DB954;display:grid;place-items:center}
+.sk-tile i::after{content:"";width:12px;height:12px;border-radius:50%;border:2px solid #0b3d1f}
+.sk-face{width:52px;height:52px;border-radius:50%;background:#fff;border:1px solid var(--outline-variant);display:grid;place-items:center;font:700 22px/1 serif;color:#111}
+.sk-dots{display:flex;gap:3px;align-items:center;height:40px}
+.sk-dots i{width:4px;border-radius:2px;background-image:radial-gradient(#2A7F86 1.4px,transparent 1.6px);background-size:4px 5px;height:var(--h)}
+
+/* ── Context strip ───────────────────────────────────────────────── */
+.strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:16px 0 8px}
+.mini{background:#fff;border:1px solid var(--outline-variant);border-radius:16px;padding:12px 10px;box-shadow:var(--shadow-m);min-width:0;overflow:hidden}
+.mini .top{display:flex;align-items:center;gap:8px}
+.mini .ring{width:40px;height:40px;border-radius:50%;border:2px solid var(--deep-orange-container);display:grid;place-items:center;color:var(--on-surface);flex:none}
+.mini .txt{flex:1;min-width:0}
+.mini .t1{font:500 10px/14px var(--font);color:var(--on-surface-variant)}
+.mini .t2{font:600 12px/16px var(--font);color:var(--deep-orange-on-container)}
+.mini .fab{margin-left:auto;flex:none}
+.mini .rows{margin-top:10px;border-top:1px solid var(--outline-variant);padding-top:8px;display:flex;flex-direction:column;gap:4px}
+.mini .rows span{display:flex;justify-content:space-between;font:400 10px/14px var(--font);color:var(--on-surface-variant)}
+.mini .rows b{font:500 10px/14px var(--num);color:var(--on-surface)}
+.mini .cap{margin-top:12px;text-align:center;font:500 12px/16px var(--font)}
+
+/* ── Direction cards ─────────────────────────────────────────────── */
+.dir{display:grid;grid-template-columns:260px 1fr;gap:28px;background:#fff;border:1px solid var(--outline-variant);border-radius:20px;padding:28px;margin:16px 0}
+.hero{display:grid;place-items:center;height:240px;border-radius:16px;background:var(--surface-3);position:relative;overflow:hidden}
+.hero .lbl{position:absolute;left:12px;bottom:10px;font:500 11px/14px var(--font);color:var(--on-surface-variant)}
+.body p{margin:8px 0 0;color:var(--on-surface-variant)}
+.body .why{color:var(--on-surface)}
+.row{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-top:18px}
+.chip{display:flex;flex-direction:column;align-items:center;gap:6px;font:500 11px/14px var(--font);color:var(--on-surface-variant)}
+.sw{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;position:relative}
+.sw.swap{background:var(--primary)}.sw.baas{background:var(--success)}.sw.go{background:#1D1D1D}
+.sw.ghost{background:#fff;border:1px solid var(--outline-variant);box-shadow:var(--shadow-m)}
+.sw.hdr{background:var(--primary);background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:13px 13px;border-radius:12px;width:72px}
+.sw.small,.sw.tiny{width:36px;height:36px;background:none}
+.score{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:18px}
+.score div{background:var(--surface-3);border-radius:10px;padding:8px 10px;font:500 11px/14px var(--font);color:var(--on-surface-variant)}
+.score b{display:block;font:600 14px/18px var(--font);color:var(--on-surface);margin-top:2px}
+.score .g b{color:var(--success)}.score .a b{color:#B45309}.score .r b{color:var(--error)}
+
+/* ── The marks ───────────────────────────────────────────────────── */
+/* A · Ring */
+.mk-ring{--s:40px;--t:3px;width:var(--s);height:var(--s);border-radius:50%;background:var(--ring);position:relative;flex:none}
+.mk-ring::after{content:"";position:absolute;inset:var(--t);border-radius:50%;background:var(--bg,#fff)}
+.mk-ring.mono{background:currentColor}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ringpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.hero .mk-ring{--s:120px;--t:9px;animation:spin 6s linear infinite}
+.hero .ringwrap{animation:ringpulse 2.2s ease-in-out infinite}
+/* B · Halo */
+.mk-halo{--s:40px;width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle at 40% 35%,#C7D2FE 0%,#4338CA 55%,#059669 100%);box-shadow:0 0 0 0 rgba(67,56,202,.0);position:relative;flex:none}
+.mk-halo::after{content:"";position:absolute;inset:26%;border-radius:50%;background:#fff;opacity:.95}
+@keyframes halo{0%,100%{box-shadow:0 0 0 0 rgba(67,56,202,.35),0 0 24px 4px rgba(5,150,105,.25)}50%{box-shadow:0 0 0 14px rgba(67,56,202,0),0 0 40px 10px rgba(5,150,105,.35)}}
+.hero .mk-halo{--s:120px;animation:halo 2.4s ease-in-out infinite}
+.hero .lightbar{position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,#4338CA,#7C3AED,#059669,#4338CA);background-size:200% 100%;animation:slide 3s linear infinite}
+@keyframes slide{to{background-position:200% 0}}
+/* C · Monogram */
+.mk-mono{--s:40px;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;font:600 calc(var(--s)*.52)/1 var(--hi);flex:none;padding-bottom:calc(var(--s)*.06)}
+.hero .mk-mono{--s:120px;background:#fff;color:var(--primary);box-shadow:var(--shadow-m)}
+/* D · Dot-wave */
+.mk-dots{--s:40px;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;flex:none}
+.mk-dots svg{width:66%;height:66%}
+@keyframes dotwave{0%,100%{transform:scaleY(.6)}50%{transform:scaleY(1.15)}}
+.hero .mk-dots{--s:120px;background:#fff;box-shadow:var(--shadow-m);color:var(--primary)}
+.hero .mk-dots svg g{transform-origin:center;animation:dotwave 1.1s ease-in-out infinite}
+.hero .mk-dots svg g:nth-child(2){animation-delay:.1s}.hero .mk-dots svg g:nth-child(3){animation-delay:.2s}.hero .mk-dots svg g:nth-child(4){animation-delay:.3s}.hero .mk-dots svg g:nth-child(5){animation-delay:.4s}.hero .mk-dots svg g:nth-child(6){animation-delay:.5s}.hero .mk-dots svg g:nth-child(7){animation-delay:.6s}
+/* E · Bijli character */
+.mk-char{--s:40px;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;flex:none}
+.mk-char svg{width:70%;height:70%}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.hero .mk-char{--s:120px;background:#fff;box-shadow:var(--shadow-m);color:var(--on-surface)}
+.hero .mk-char .eye{transform-origin:center;animation:blink 3.6s infinite}
+
+/* ── Combo + reco ─────────────────────────────────────────────────── */
+.combo{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.combo div{background:#fff;border:1px solid var(--outline-variant);border-radius:16px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:10px;font:500 12px/16px var(--font);color:var(--on-surface-variant);text-align:center}
+.reco{background:var(--primary-subtle);border:1px solid var(--primary-container);border-radius:20px;padding:24px 28px;margin-top:24px}
+.reco h3{color:var(--on-primary-container)}
+.reco p{margin:8px 0 0}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--outline-variant);border-radius:16px;overflow:hidden;font-size:14px;margin-top:12px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--outline-variant);vertical-align:top}
+th{font:500 12px/16px var(--font);color:var(--on-surface-variant);background:var(--surface-3);text-transform:uppercase;letter-spacing:.4px}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600}
+@media (max-width:760px){.dir,.route{grid-template-columns:1fr}.routes{grid-template-columns:1fr}.strip{grid-template-columns:repeat(3,1fr)}.combo{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Voice assistant identity — round 2</h1>
+<p class="lede">Round 1 tried to invent a glyph. The references say that is the hardest route and the one that almost nobody wins. This round starts from what the successful assistant identities actually do on Mobbin, sorts them into four routes, and builds five directions on those routes instead.</p>
+
+<!-- ═══════ References ═══════ -->
+<h2 style="margin-top:0">What the references actually do</h2>
+<p class="muted" style="margin:0">Twelve apps, four routes. Links open the Mobbin screen.</p>
+
+<div class="routes">
+  <div class="route">
+    <div class="sk"><div class="sk-ring"></div></div>
+    <div>
+      <h4>Route 1 · Colour, no glyph</h4>
+      <p>Meta AI is a hollow gradient ring floating above WhatsApp's tab bar. No symbol inside it. It is the same ring in Instagram and Messenger, so the identity is the colour and the shape, and it never competes with the host app's green or purple.</p>
+      <div class="apps"><a href="https://mobbin.com/screens/d99c7f08-a809-45c7-8fbd-8a1f1f3a135c">WhatsApp · Meta AI</a><a href="https://mobbin.com/screens/d2edf290-d42e-4acf-bf92-28faeef8b50e">WhatsApp · empty state</a><a href="https://mobbin.com/screens/64be7109-fd45-4292-9010-c6ad15a88d6d">ChatGPT · Voice</a></div>
+      <p class="lesson"><b>Lesson:</b> the cross-app problem is solved by giving the assistant its own fixed colour and a hollow form, not by drawing a better icon.</p>
+    </div>
+  </div>
+  <div class="route">
+    <div class="sk"><div style="width:100%;height:100%;position:relative"><div class="sk-bar"></div></div></div>
+    <div>
+      <h4>Route 2 · Light and material</h4>
+      <p>Alexa is a blue light along the bottom edge, the Echo ring flattened onto a phone. ChatGPT Voice is a soft blue cloud in a circle. Neither has a drawable icon. The identity is a glow, and the glow is also the speaking state.</p>
+      <div class="apps"><a href="https://mobbin.com/screens/665098ae-d218-4932-adcf-bc6b894e0620">Alexa · listening bar</a><a href="https://mobbin.com/screens/6cddc279-96c3-4fe9-bf7b-9b4a1a8aa95b">ChatGPT · voice orb</a><a href="https://mobbin.com/screens/c343a912-29df-4a9f-88da-916fc04802e6">Perplexity · dot-matrix wave</a></div>
+      <p class="lesson"><b>Lesson:</b> when the product is a voice, the mark can be the sound made visible. Perplexity's halftone dots are a texture you recognise before you read anything.</p>
+    </div>
+  </div>
+  <div class="route">
+    <div class="sk"><div class="sk-tile"><i></i>DJ</div></div>
+    <div>
+      <h4>Route 3 · A named object</h4>
+      <p>Spotify's DJ is a green disc with a thin ring and two letters, sitting among content tiles as if it were an album. Snapchat's My AI is a contact in the chat list. Both make the assistant a <em>thing with a name</em>, not a control.</p>
+      <div class="apps"><a href="https://mobbin.com/screens/c2609ecf-234e-4f04-af1d-18199a45f2d5">Spotify · DJ tile</a><a href="https://mobbin.com/screens/7b85b6c2-9e9e-4280-96ab-98e2ad8d31d1">Snapchat · My AI</a><a href="https://mobbin.com/screens/c84bfff5-06b6-4f4a-8d34-e9fb5c1e6ecf">CRED · concierge</a></div>
+      <p class="lesson"><b>Lesson:</b> two letters in a circle beat any abstract glyph once the name is known. The name does the work; the mark just holds it.</p>
+    </div>
+  </div>
+  <div class="route">
+    <div class="sk"><div class="sk-face">ツ</div></div>
+    <div>
+      <h4>Route 4 · Character</h4>
+      <p>Notion AI is a hand-drawn monochrome face, and when you pick a persona it gets a hat. Duolingo's Lily is a full character you video-call. Faces make the assistant approachable, and they set the expectation that it talks back.</p>
+      <div class="apps"><a href="https://mobbin.com/screens/8c3affc7-741b-4e49-b4fe-27e9471d0177">Notion AI · face</a><a href="https://mobbin.com/screens/37220613-e225-443a-a382-a5159b205c55">Notion · persona hat</a><a href="https://mobbin.com/screens/b5010dc6-7346-4b70-a1f2-9cc01f519c55">Duolingo · Lily</a></div>
+      <p class="lesson"><b>Lesson:</b> a face is the strongest approachability cue and the biggest promise. Right for a conversational assistant, early for one that narrates.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ Context strip ═══════ -->
+<h2>Round 2, in the slot</h2>
+<p class="muted" style="margin:0">Same test as before: top-right of the plan card, 40 px.</p>
+<div class="strip" id="strip"></div>
+
+<!-- ═══════ Directions ═══════ -->
+<h2>The directions</h2>
+
+<!-- A Ring -->
+<div class="dir" style="border-color:var(--primary-container);box-shadow:0 0 0 3px var(--primary-subtle)">
+  <div class="hero"><div class="ringwrap"><div class="mk-ring" style="--bg:#F5F5F5"></div></div><span class="lbl">speaking: ring turns and breathes</span></div>
+  <div class="body">
+    <h3>A · Ring <span class="tag pick">recommended</span><span class="tag">Route 1</span></h3>
+    <p class="why">A hollow ring in a fixed indigo → violet → mint sweep. Nothing inside it. Indigo and mint are already the brand's two colours; the violet between them is the assistant's own note. It is the Meta AI move, and it solves the Swap / BaaS / GoSmart problem the way Meta solved WhatsApp / Instagram / Messenger: the ring never changes, the host does.</p>
+    <p>Hollow matters. Every other button on these screens is a filled disc. A ring is the one shape that reads as "different kind of thing" at 40 px without needing a symbol. Monochrome fallback is a plain hollow ring, still distinct from filled buttons.</p>
+    <div class="row" data-mark="A"></div>
+    <div class="score"><div class="a">Reads as voice<b>Learned fast</b></div><div class="g">Tappable<b>High</b></div><div class="g">At 20 px<b>Clean</b></div><div class="g">Cross-app<b>Built for it</b></div><div class="g">Ownable<b>High</b></div></div>
+  </div>
+</div>
+
+<!-- B Halo -->
+<div class="dir">
+  <div class="hero"><div class="mk-halo"></div><div class="lightbar"></div><span class="lbl">speaking: halo swells, light bar runs along the sheet edge</span></div>
+  <div class="body">
+    <h3>B · Halo <span class="tag">Route 2</span></h3>
+    <p class="why">A soft gradient disc with a white core, like a light seen through frosted glass. At rest it is a quiet glow on the card. When the assistant speaks, the same gradient appears as a thin light bar along the bottom edge of the sheet, Alexa-style, so the whole screen "has a voice" and not just one button.</p>
+    <p>Risk: glows are hard to draw at 14 px and impossible in monochrome. This is an identity for the moment of speaking more than for a tab icon.</p>
+    <div class="row" data-mark="B"></div>
+    <div class="score"><div class="g">Reads as voice<b>High</b></div><div class="g">Tappable<b>High</b></div><div class="r">At 20 px<b>Weak</b></div><div class="a">Cross-app<b>Colour only</b></div><div class="g">Ownable<b>High</b></div></div>
+  </div>
+</div>
+
+<!-- C Monogram -->
+<div class="dir">
+  <div class="hero"><div class="mk-mono">ऋ</div><span class="lbl">speaking: letter sits inside the ring from A</span></div>
+  <div class="body">
+    <h3>C · ऋ monogram <span class="tag">Route 3</span></h3>
+    <p class="why">The voice is called Ritu. Put her initial in a circle, the way Spotify puts "DJ" in one. A Devanagari letter is instantly local, impossible to confuse with any global assistant, and it turns the mark into a name a rider can say: "ऋ वाला बटन दबाओ". For Bindu it would be बि, for Saathi सा.</p>
+    <p>Risk: it commits you to a name before the name is chosen, and it leans on the rider reading Devanagari. Pairs naturally with A as the ring's optional centre.</p>
+    <div class="row" data-mark="C"></div>
+    <div class="score"><div class="a">Reads as voice<b>Via name</b></div><div class="g">Tappable<b>High</b></div><div class="g">At 20 px<b>OK</b></div><div class="g">Cross-app<b>Mono OK</b></div><div class="g">Ownable<b>Very high</b></div></div>
+  </div>
+</div>
+
+<!-- D Dot-wave -->
+<div class="dir">
+  <div class="hero"><div class="mk-dots" id="heroDots"></div><span class="lbl">speaking: dot columns rise and fall</span></div>
+  <div class="body">
+    <h3>D · Dot-wave <span class="tag">Route 2</span></h3>
+    <p class="why">A waveform built from dots instead of bars, Perplexity's halftone made into a button. The texture is the identity: no other app in a rider's phone uses stippled sound. It also gives the player pill a native language, since the waveform in the sheet can be drawn from the same dots.</p>
+    <p>Risk: at 14 px the dots merge into a smudge. Needs a bar fallback for tiny sizes, which starts to undo the point.</p>
+    <div class="row" data-mark="D"></div>
+    <div class="score"><div class="g">Reads as voice<b>High</b></div><div class="g">Tappable<b>Medium</b></div><div class="a">At 20 px<b>Smudges</b></div><div class="g">Cross-app<b>Mono OK</b></div><div class="g">Ownable<b>High</b></div></div>
+  </div>
+</div>
+
+<!-- E Bijli -->
+<div class="dir">
+  <div class="hero"><div class="mk-char"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="4"/><path d="M10 2.5h4"/><circle class="eye" cx="9.5" cy="11" r="1.1" fill="currentColor" stroke="none"/><circle class="eye" cx="14.5" cy="11" r="1.1" fill="currentColor" stroke="none"/><path d="M9.5 15.5c1.2 1.4 3.8 1.4 5 0"/></svg></div><span class="lbl">speaking: mouth opens, eyes blink</span></div>
+  <div class="body">
+    <h3>E · Bijli <span class="tag">Route 4</span></h3>
+    <p class="why">A battery cell with a face, drawn in one monochrome line like Notion's. It is the only direction that is unmistakably Battery Smart's, and the only one a rider would call by a name without being told one. In BaaS it can wear a helmet, in GoSmart a cap, the Notion trick.</p>
+    <p>Risk: the same one as before. A face promises a conversation. Hold it for when the assistant can listen.</p>
+    <div class="row" data-mark="E"></div>
+    <div class="score"><div class="g">Reads as voice<b>High</b></div><div class="g">Tappable<b>Very high</b></div><div class="a">At 20 px<b>Soft</b></div><div class="g">Cross-app<b>Hats</b></div><div class="g">Ownable<b>Very high</b></div></div>
+  </div>
+</div>
+
+<!-- ═══════ Combination ═══════ -->
+<h2>How A grows</h2>
+<p class="muted" style="margin:0">The ring is a container. It can hold nothing, a letter, or a light, depending on where it is and how much the rider knows.</p>
+<div class="combo">
+  <div><div class="mk-ring" style="--s:56px;--t:4px"></div>Entry point on any card.<br>Empty ring, fixed colours.</div>
+  <div><div class="mk-ring" style="--s:56px;--t:4px;display:grid;place-items:center"><span style="position:relative;z-index:1;font:600 22px/1 var(--hi);color:var(--primary);padding-bottom:3px">ऋ</span></div>Sheet header, once named.<br>Ring holds the initial.</div>
+  <div><div class="mk-ring" style="--s:56px;--t:4px;display:grid;place-items:center;animation:spin 4s linear infinite"><span style="position:relative;z-index:1;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle,#C7D2FE,#4338CA)"></span></div>Speaking.<br>Ring turns, core glows.</div>
+  <div><div class="mk-ring mono" style="--s:56px;--t:4px;color:#646464"></div>Tab bar or inline text.<br>Single colour, still a ring.</div>
+</div>
+
+<!-- ═══════ Cross-app ═══════ -->
+<h2>Across the three apps</h2>
+<table>
+  <tr><th style="width:18%">App</th><th>Host primary</th><th>What the ring does</th></tr>
+  <tr><td>Swap</td><td>Indigo #4338CA</td><td>Ring's own gradient on a white card. Indigo end of the sweep matches the host, mint end says "assistant".</td></tr>
+  <tr><td>BaaS</td><td>Mint #059669 (today's CTA colour)</td><td>Same ring, unchanged. Mint end now matches the host, indigo end differentiates. The sweep is designed so one of its ends always agrees with the app it sits in.</td></tr>
+  <tr><td>GoSmart</td><td>TBD</td><td>Same ring. If GoSmart's palette clashes with both ends, the ring stays anyway. That is the whole point of a fixed identity; it is what Meta accepted inside Instagram's orange-pink.</td></tr>
+</table>
+
+<!-- ═══════ Reco ═══════ -->
+<div class="reco">
+  <h3>What I'd take to Adil</h3>
+  <p><b>A, the ring.</b> It is the only direction that answers the cross-app brief with a precedent riders already have on their phones, and it costs nothing to learn: it looks like the Meta AI button, and every rider with WhatsApp already knows that shape means "the smart thing". It has no glyph to get wrong, it survives monochrome, and it grows: empty today, a letter when the assistant has a name, a glowing core when it speaks.</p>
+  <p><b>Bring C beside it</b> as the answer to "what goes inside once we name her". <b>Keep E in the drawer</b> for the conversational version; a battery with a face is the most Battery Smart thing on this page, and it deserves a product that can listen.</p>
+  <p>If the room wants a symbol regardless, D is the one to develop, not anything from round 1.</p>
+</div>
+
+</div>
+
+<script>
+/* dot-wave SVG: 7 columns of dots, heights as a wave */
+function dotwave(size){ const cols=[3,5,7,4,6,3,5]; let s='<svg viewBox="0 0 28 24" fill="currentColor">';
+  cols.forEach((n,i)=>{ const x=2+i*4; s+='<g>'; for(let k=0;k<n;k++){ const y=12+(k-(n-1)/2)*3; s+=`<circle cx="${x}" cy="${y}" r="1.15"/>`; } s+='</g>'; });
+  return s+'</svg>'; }
+document.getElementById('heroDots').innerHTML=dotwave();
+
+const BIJLI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="4"/><path d="M10 2.5h4"/><circle cx="9.5" cy="11" r="1.1" fill="currentColor" stroke="none"/><circle cx="14.5" cy="11" r="1.1" fill="currentColor" stroke="none"/><path d="M9.5 15.5c1.2 1.4 3.8 1.4 5 0"/></svg>';
+
+/* mark factory: returns HTML for a mark at size px, on a given background context */
+function mark(k,size,ctx){ // ctx: 'white' | 'dark' | 'mono'
+  const t=Math.max(2,Math.round(size*0.09));
+  if(k==='A'){ if(ctx==='mono') return `<div class="mk-ring mono" style="--s:${size}px;--t:${t}px;color:${size<=20?'#646464':'#fff'}"></div>`;
+               return `<div class="mk-ring" style="--s:${size}px;--t:${t}px;--bg:${ctx==='dark'?'transparent':'#fff'}"></div>`; }
+  if(k==='B'){ if(ctx==='mono') return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#646464;opacity:.5"></div>`; return `<div class="mk-halo" style="--s:${size}px"></div>`; }
+  if(k==='C'){ const col = ctx==='dark' ? '#fff' : ctx==='mono' ? '#646464' : 'var(--primary)'; const bg = ctx==='dark' ? 'transparent' : ctx==='mono' ? 'transparent' : '#fff';
+               return `<div class="mk-mono" style="--s:${size}px;color:${col};background:${bg};${ctx==='dark'?'border:'+t+'px solid rgba(255,255,255,.9)':''}">ऋ</div>`; }
+  if(k==='D'){ const col = ctx==='dark' ? '#fff' : ctx==='mono' ? '#646464' : 'var(--primary)'; return `<div class="mk-dots" style="--s:${size}px;color:${col}">${dotwave()}</div>`; }
+  if(k==='E'){ const col = ctx==='dark' ? '#fff' : ctx==='mono' ? '#646464' : 'var(--on-surface)'; return `<div class="mk-char" style="--s:${size}px;color:${col}">${BIJLI}</div>`; }
+}
+const NAMES={A:'Ring',B:'Halo',C:'ऋ monogram',D:'Dot-wave',E:'Bijli'};
+
+/* context strip */
+const strip=document.getElementById('strip');
+['A','B','C','D','E'].forEach(k=>{
+  const fab = (k==='A'||k==='B') ? mark(k,36,'white') : `<span style="width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--outline-variant);box-shadow:var(--shadow-m);display:grid;place-items:center">${mark(k,30,'white')}</span>`;
+  strip.insertAdjacentHTML('beforeend',`<div class="mini">
+    <div class="top"><span class="ring"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 12c-1.9-2.6-3.4-3.9-5.4-3.9A3.9 3.9 0 0 0 6.6 16c2 0 3.5-1.3 5.4-4Zm0 0c1.9 2.6 3.4 3.9 5.4 3.9A3.9 3.9 0 0 0 17.4 8c-2 0-3.5 1.3-5.4 4Z"/></svg></span>
+      <span class="txt"><span class="t1">Unlimited Plan</span><br><span class="t2">4 days overdue</span></span><span class="fab">${fab}</span></div>
+    <div class="rows"><span>Plan Payment<b>₹3,099</b></span><span style="color:var(--error)">Overuse (4 days)<b style="color:var(--error)">₹200</b></span></div>
+    <div class="cap">${k} · ${NAMES[k]}</div></div>`);
+});
+
+/* theme rows */
+document.querySelectorAll('.row[data-mark]').forEach(row=>{
+  const k=row.dataset.mark;
+  const sw=(cls,inner,label)=>`<div class="chip"><div class="sw ${cls}">${inner}</div>${label}</div>`;
+  const onFill = (k==='A') ? mark(k,30,'dark') : (k==='B') ? mark(k,30,'white') : mark(k,30,'dark');
+  row.innerHTML =
+    sw('swap',onFill,'Swap') + sw('baas',onFill,'BaaS') + sw('go',onFill,'GoSmart (TBD)') +
+    sw('ghost',mark(k,k==='A'||k==='B'?40:30,'white'),'Card button') +
+    sw('hdr',`<span style="width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center">${mark(k,k==='A'||k==='B'?34:26,'white')}</span>`,'On header') +
+    sw('small',mark(k,20,'mono'),'Mono 20 px') + sw('tiny',mark(k,14,'mono'),'14 px');
+});
+</script>
+</body>
+</html>
