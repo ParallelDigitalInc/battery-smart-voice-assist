@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Battery Smart — Voice Assistant V2</title>
+<title>Battery Smart — Voice Assistant V3 (overdue plan)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Geist:wght@400..700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -239,21 +239,39 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
 .voice[data-phase="final"] .caption,.voice[data-phase="final"] .ctl,.voice[data-phase="final"] .navrow{display:none}
 .voice:not([data-phase="final"]) .final-btns,.voice:not([data-phase="final"]) .final-help{display:none}
 
-/* ── Variant "early": Support pill stays in the sheet header and Pay / Return sit in the sheet
-   from the first line (client feedback, 19 Sep). Toggle from the toolbar or with ?cta=early ── */
-.vsupport{position:absolute;top:60px;left:20px;width:48px;height:48px;padding:0;gap:0;justify-content:center;border:1px solid var(--outline-variant);z-index:6;display:none;opacity:0;transform:scale(.9);transition:opacity .3s .18s,transform .3s .18s cubic-bezier(.2,.7,.2,1)}
+/* ── V3 layout (client feedback 19 Sep, Shreya's mock 21 Sep):
+   back arrow top-left, Support top-right, one control row, progress bar on the sheet's top edge,
+   Return battery + Pay now in the sheet from the first line. ── */
+.vsupport{position:absolute;top:60px;right:20px;width:48px;height:48px;padding:0;gap:0;justify-content:center;border:1px solid var(--outline-variant);z-index:6;display:none;opacity:0;transform:scale(.9);transition:opacity .3s .18s,transform .3s .18s cubic-bezier(.2,.7,.2,1)}
 .vsupport .t{display:none}
 .voice[data-cta="early"] .vsupport{display:flex}
 .voice[data-cta="early"].open .vsupport{opacity:1;transform:none}
+.close .ic-back{display:none}
+.voice[data-cta="early"] .close{left:20px;right:auto}
+.voice[data-cta="early"] .close .ic-x{display:none}
+.voice[data-cta="early"] .close .ic-back{display:block}
 .voice[data-cta="early"] .caption{top:30px;height:150px}
-.voice[data-cta="early"] .ctl{top:186px}
-.voice[data-cta="early"] .navrow{top:246px}
-.early-btns{position:absolute;left:20px;right:20px;top:304px;display:none;gap:10px}
+/* one control row: back · sound · waveform · pause · forward */
+.voice[data-cta="early"] .ctl{top:188px}
+.voice[data-cta="early"] .navrow{top:192px;left:18px;right:18px;justify-content:space-between;gap:0;pointer-events:none}
+.voice[data-cta="early"] .navrow .nav-btn,.voice[data-cta="early"] .dots i{pointer-events:auto}
+/* quieter pill per the mock: neutral grey, smaller, bars capped at 18px */
+.voice[data-cta="early"] .player{width:108px;height:44px;padding:0 12px;background:var(--surface-container-high)}
+.voice[data-cta="early"] .wave{height:18px}
+/* one continuous progress bar along the sheet's top edge, inset by the corner radius; fills line by line and grows with the voice */
+.voice[data-cta="early"] .dots{display:none}
+.prog{display:none}
+.voice[data-cta="early"] .prog{display:block;position:absolute;left:20px;right:20px;top:0;height:4px;border-radius:0 0 2px 2px;background:var(--surface-container-high);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--primary);border-radius:0 2px 2px 0;transition:width .18s linear}
+.early-btns{position:absolute;left:20px;right:20px;top:266px;display:none;gap:12px}
 .early-btns .btn{flex:1;min-width:0;white-space:nowrap;padding:0 12px}
+.early-btns .btn.error{order:2}
 .voice[data-cta="early"]:not([data-phase="final"]) .early-btns{display:flex}
-.voice[data-cta="early"][data-phase="a"] .sheet,.voice[data-cta="early"][data-phase="b"] .sheet{height:376px}
+.voice[data-cta="early"][data-phase="a"] .sheet,.voice[data-cta="early"][data-phase="b"] .sheet{height:338px}
 .voice[data-cta="early"][data-phase="final"] .final-help{display:none}
 .voice[data-cta="early"][data-phase="final"] .sheet{height:200px}
+/* end state: same button colours as the row above */
+.voice[data-cta="early"] .final-btns .fab-dark{background:var(--error);border:0;box-shadow:none;font-weight:600}
 
 /* toast */
 .toast{position:absolute;left:50%;bottom:120px;transform:translateX(-50%) translateY(10px);background:#1D1D1D;color:#fff;padding:10px 16px;border-radius:12px;font:500 14px/20px var(--font-brand);opacity:0;pointer-events:none;transition:.25s;z-index:20;white-space:nowrap}
@@ -367,7 +385,7 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
 </section>
 
 <!-- ═══════════════════════ VOICE SHEET ═══════════════════════ -->
-<section class="screen voice" id="voice" data-phase="a">
+<section class="screen voice" id="voice" data-phase="a" data-cta="early">
   <div class="status">
     <span>9:30</span><span class="cam"></span>
     <span class="icons">
@@ -381,7 +399,8 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
     <span class="t">Support</span>
   </button>
   <button class="close" aria-label="Close" onclick="closeVoice()">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    <svg class="ic-x" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    <svg class="ic-back" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
   </button>
 
   <div class="top">
@@ -409,6 +428,7 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
   </div>
 
   <div class="sheet" id="sheet">
+    <div class="prog" id="prog"><i></i></div>
     <div class="caption" id="caption"></div>
     <div class="ctl">
       <button class="cbtn mute" id="mute" aria-label="Mute" onclick="toggleMute()">
@@ -430,7 +450,7 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
     </div>
 
     <div class="early-btns">
-      <button class="btn h48 error" onclick="toast('Prototype: payment not wired')">Pay <span class="num" id="payTotalEarly">₹3,399</span></button>
+      <button class="btn h48 error" onclick="toast('Prototype: payment not wired')">Pay now</button>
       <button class="btn h48 outline indigo" onclick="toast('Prototype: return flow not wired')">Return battery</button>
     </div>
 
@@ -458,7 +478,6 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
   <span class="stepno" id="stepno">Home</span>
   <button onclick="nextStepManual()">▶</button>
   <button onclick="replay()">Replay line</button>
-  <button onclick="toggleCta()" id="ctaBtn" title="Client variant: Pay / Return and Support available from the first line">CTAs: at end</button>
   <span class="src none" id="src">audio: checking…</span>
 </div>
 </div>
@@ -545,7 +564,7 @@ if(CONFIG.planIcon){ document.querySelectorAll('.planicon').forEach(el=>{ el.inn
 const bars=[...wave.children], NB=bars.length, hist=new Float32Array(NB);
 let waveRAF=null, actx=null, analyser=null, tdom=null, zeroFrames=0, lastSlice=0, synthT=0;
 const player=$('#player');
-function paintBars(){ for(let i=0;i<NB;i++){ const v=hist[i]; bars[i].style.height=(4+Math.min(1,v)*24)+'px'; } }
+function paintBars(){ const amp = voice.dataset.cta==='early' ? 14 : 24; for(let i=0;i<NB;i++){ const v=hist[i]; bars[i].style.height=(4+Math.min(1,v)*amp)+'px'; } }
 function waveIdle(){ if(waveRAF) cancelAnimationFrame(waveRAF); waveRAF=null; hist.fill(0); paintBars(); player.classList.add('idle'); player.classList.remove('paused'); voice.classList.remove('paused'); }
 function level(){
   if(analyser){ analyser.getByteTimeDomainData(tdom); let sum=0; for(let i=0;i<tdom.length;i++){ const d=(tdom[i]-128)/128; sum+=d*d; }
@@ -594,13 +613,14 @@ function karaokeProgress(){
 }
 function karaokeTick(){
   const p=karaokeProgress()*kTotal + kTotal*0.06;   // small lead so a word lights as it starts, not as it ends
+  if(kTotal) setProgress((step + Math.max(0,Math.min(1,karaokeProgress())))/STEPS.length);
   for(let i=0;i<kWords.length;i++){ const w=kWords[i], on=kCum[i]-w.textContent.length*0.5 <= p;
     if(on && !w.classList.contains('on')){ w.classList.add('on');
       const num=w.classList.contains('num')? w : w.closest('.num');
       if(num){ pop(num); if(kPulse && !kPulsed){ kPulsed=true; pop(kPulse); } } }
     else if(!on && w.classList.contains('on')) w.classList.remove('on'); }
 }
-function karaokeComplete(){ kWords.forEach(w=>w.classList.add('on')); }
+function karaokeComplete(){ kWords.forEach(w=>w.classList.add('on')); if(step>=0) setProgress((step+1)/STEPS.length); }
 
 function haptic(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
 function pop(sel){ if(!sel) return; const el=(typeof sel==='string')? document.querySelector(sel) : sel; if(!el) return; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
@@ -613,7 +633,7 @@ function fmtCaption(s){ const h=Math.floor(s/3600), m=Math.floor(s%3600/60); ret
 function tick(){ remaining--; const t=fmt(remaining); $('#cdHome').textContent=t; $('#cdSheet').textContent=t; $('#homeTimer').style.setProperty('--p',(1-remaining/CONFIG.countdownSec)*0.5+0.5); const c=$('#capCountdown'); if(c) c.textContent=fmtCaption(remaining); }
 tick(); setInterval(tick,1000);
 $('#homeNext').textContent=CONFIG.nextCharge; $('#cdSheetAmt').textContent=CONFIG.nextCharge;
-$('#payTotalHome').textContent=CONFIG.total; $('#payTotalFinal').textContent=CONFIG.total; $('#payTotalEarly').textContent=CONFIG.total; $('#pendingAmt').textContent=CONFIG.total;
+$('#payTotalHome').textContent=CONFIG.total; $('#payTotalFinal').textContent=CONFIG.total; $('#pendingAmt').textContent=CONFIG.total;
 
 /* ───────────────────── audio source detection ───────────────────── */
 const EMB = (window.EMBEDDED_AUDIO && window.EMBEDDED_AUDIO.length===8) ? window.EMBEDDED_AUDIO : null;
@@ -718,11 +738,14 @@ function setCaption(html){
   if(old){ old.classList.remove('enter'); old.classList.add('leave'); setTimeout(()=>old.remove(),240); }
   const n=document.createElement('div'); n.className='cap-layer enter'; n.innerHTML=html; captionEl.appendChild(n); tokenizeCaption(n);
 }
-function renderDots(i){ [...$('#dots').children].forEach((d,k)=>{ d.classList.toggle('on',k===i); d.classList.toggle('done',k<i); }); }
+let progShown=0;
+/* Progress never runs backwards inside a line (a late tick from the previous clip must not drag it back); navigation may set it anywhere */
+function setProgress(f,force){ f=Math.max(0,Math.min(1,f)); if(!force && f<progShown) return; progShown=f; const el=$('#prog i'); if(el) el.style.width=(f*100)+'%'; }
+function renderDots(i){ [...$('#dots').children].forEach((d,k)=>{ d.classList.toggle('on',k===i); d.classList.toggle('done',k<i); }); setProgress(i/STEPS.length,true); }
 function goStep(i){
   if(i>=STEPS.length){ // final state
     stopCurrent(); step=STEPS.length;
-    voice.dataset.phase='final'; renderCard(['plan','leave','overuse','strip']); haptic(12);
+    voice.dataset.phase='final'; renderCard(['plan','leave','overuse','strip']); haptic(12); setProgress(1,true);
     $('#stepno').textContent='Final'; return;
   }
   step=i; const s=STEPS[i];
@@ -739,10 +762,7 @@ function goStep(i){
 function openVoice(){ userPaused=false; renderCard([]); captionEl.innerHTML=''; voice.dataset.phase='a'; home.classList.add('dim'); voice.classList.add('open'); haptic(10); clearTimeout(openVoice._t); openVoice._t=setTimeout(()=>goStep(0),160); }
 function closeVoice(){ clearTimeout(openVoice._t); stopCurrent(); voice.classList.remove('open'); home.classList.remove('dim'); step=-1; $('#stepno').textContent='Home'; }
 function restart(){ closeVoice(); }
-/* Variant toggle: 'end' = CTAs after the narration (default), 'early' = client variant, CTAs + Support throughout */
-function setCta(m){ voice.dataset.cta=m; $('#ctaBtn').textContent = m==='early' ? 'CTAs: always' : 'CTAs: at end'; try{ const u=new URL(location.href); if(m==='early') u.searchParams.set('cta','early'); else u.searchParams.delete('cta'); history.replaceState(null,'',u); }catch(e){} }
-function toggleCta(){ setCta(voice.dataset.cta==='early' ? 'end' : 'early'); haptic(8); }
-setCta(new URLSearchParams(location.search).get('cta')==='early' ? 'early' : 'end');
+voice.dataset.cta='early'; // v3: single layout, no toggle
 function nextStepManual(){ if(step<0){ openVoice(); return; } navNext(); }
 function prevStep(){ if(step<=0){ closeVoice(); return; } navPrev(); }
 function replay(){ if(step>=0 && step<STEPS.length) speakStep(step); }

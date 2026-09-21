@@ -15,20 +15,16 @@ growing in sync with the voice, and the final pay / return state.
 | `docs-identity-round2.html` | Identity exploration board (reference, not part of the prototype). |
 
 ## Run
-Open `battery-smart-voice-v2-audio.html` in Chrome. Tap the speaker on the plan card.
+Open `battery-smart-voice-v3-audio.html` in Chrome (everything embedded), or serve the
+folder and open `index.html` (loads clips from `audio/`). Tap the speaker on the plan card.
 
-Controls in the sheet: **sound** (mute keeps captions running), **waveform**
-(tap to pause), **pause/play**, then **back · dots · forward**. A manual pause is
-sticky across back/forward. Keyboard: space, ← →, M, Esc.
+V3 layout (19 Sep client feedback, 21 Sep mock): back arrow top-left, Support top-right,
+one control row (**back · sound · waveform · pause · forward**), a progress bar along the
+sheet's top edge that fills with the voice, and **Return battery / Pay now** in the sheet
+from the first line. A manual pause is sticky across back/forward. Keyboard: space, ← →, M, Esc.
 
-Two variants, switched with the **CTAs** button in the prototype toolbar:
-
-- **CTAs: at end** (default) - Pay / Return Battery and Contact Support appear
-  once the narration has finished.
-- **CTAs: always** - client-requested variant (19 Sep). A Support button sits in
-  the sheet header throughout, and Pay / Return Battery are in the sheet from the
-  first line. Link directly with `?cta=early`, e.g.
-  `index.html?cta=early`.
+`battery-smart-voice-v2-audio.html` is the earlier V2 build (CTAs after the narration),
+kept for comparison. Add `?cta=early` to it to see the V3 layout inside V2's toggle.
 
 ## Changing the numbers
 Everything the voice says lives in the `CONFIG` object at the top of the script.

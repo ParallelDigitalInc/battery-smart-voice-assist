@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Battery Smart — Voice Assistant V2</title>
+<title>Battery Smart — Voice Assistant V3 (overdue plan)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Geist:wght@400..700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -239,9 +239,9 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
 .voice[data-phase="final"] .caption,.voice[data-phase="final"] .ctl,.voice[data-phase="final"] .navrow{display:none}
 .voice:not([data-phase="final"]) .final-btns,.voice:not([data-phase="final"]) .final-help{display:none}
 
-/* ── Variant "early" (client feedback, 19 Sep; layout per Shreya's mock, 21 Sep):
+/* ── V3 layout (client feedback 19 Sep, Shreya's mock 21 Sep):
    back arrow top-left, Support top-right, one control row, progress bar on the sheet's top edge,
-   Return battery + Pay now in the sheet from the first line. Toggle from the toolbar or ?cta=early ── */
+   Return battery + Pay now in the sheet from the first line. ── */
 .vsupport{position:absolute;top:60px;right:20px;width:48px;height:48px;padding:0;gap:0;justify-content:center;border:1px solid var(--outline-variant);z-index:6;display:none;opacity:0;transform:scale(.9);transition:opacity .3s .18s,transform .3s .18s cubic-bezier(.2,.7,.2,1)}
 .vsupport .t{display:none}
 .voice[data-cta="early"] .vsupport{display:flex}
@@ -385,7 +385,7 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
 </section>
 
 <!-- ═══════════════════════ VOICE SHEET ═══════════════════════ -->
-<section class="screen voice" id="voice" data-phase="a">
+<section class="screen voice" id="voice" data-phase="a" data-cta="early">
   <div class="status">
     <span>9:30</span><span class="cam"></span>
     <span class="icons">
@@ -478,7 +478,6 @@ html,body{background:radial-gradient(120% 90% at 50% 0%,#F4F3FF 0%,#ECEBF3 45%,#
   <span class="stepno" id="stepno">Home</span>
   <button onclick="nextStepManual()">▶</button>
   <button onclick="replay()">Replay line</button>
-  <button onclick="toggleCta()" id="ctaBtn" title="Client variant: Pay / Return and Support available from the first line">CTAs: at end</button>
   <span class="src none" id="src">audio: checking…</span>
 </div>
 </div>
@@ -764,10 +763,7 @@ function goStep(i){
 function openVoice(){ userPaused=false; renderCard([]); captionEl.innerHTML=''; voice.dataset.phase='a'; home.classList.add('dim'); voice.classList.add('open'); haptic(10); clearTimeout(openVoice._t); openVoice._t=setTimeout(()=>goStep(0),160); }
 function closeVoice(){ clearTimeout(openVoice._t); stopCurrent(); voice.classList.remove('open'); home.classList.remove('dim'); step=-1; $('#stepno').textContent='Home'; }
 function restart(){ closeVoice(); }
-/* Variant toggle: 'end' = CTAs after the narration (default), 'early' = client variant, CTAs + Support throughout */
-function setCta(m){ voice.dataset.cta=m; $('#ctaBtn').textContent = m==='early' ? 'CTAs: always' : 'CTAs: at end'; try{ const u=new URL(location.href); if(m==='early') u.searchParams.set('cta','early'); else u.searchParams.delete('cta'); history.replaceState(null,'',u); }catch(e){} }
-function toggleCta(){ setCta(voice.dataset.cta==='early' ? 'end' : 'early'); haptic(8); }
-setCta(new URLSearchParams(location.search).get('cta')==='early' ? 'early' : 'end');
+voice.dataset.cta='early'; // v3: single layout, no toggle
 function nextStepManual(){ if(step<0){ openVoice(); return; } navNext(); }
 function prevStep(){ if(step<=0){ closeVoice(); return; } navPrev(); }
 function replay(){ if(step>=0 && step<STEPS.length) speakStep(step); }
