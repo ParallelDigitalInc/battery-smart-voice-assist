@@ -21,6 +21,15 @@ Controls in the sheet: **sound** (mute keeps captions running), **waveform**
 (tap to pause), **pause/play**, then **back · dots · forward**. A manual pause is
 sticky across back/forward. Keyboard: space, ← →, M, Esc.
 
+Two variants, switched with the **CTAs** button in the prototype toolbar:
+
+- **CTAs: at end** (default) - Pay / Return Battery and Contact Support appear
+  once the narration has finished.
+- **CTAs: always** - client-requested variant (19 Sep). A Support button sits in
+  the sheet header throughout, and Pay / Return Battery are in the sheet from the
+  first line. Link directly with `?cta=early`, e.g.
+  `index.html?cta=early`.
+
 ## Changing the numbers
 Everything the voice says lives in the `CONFIG` object at the top of the script.
 Change one value and the Home card, the sheet card, the captions and the TTS text
